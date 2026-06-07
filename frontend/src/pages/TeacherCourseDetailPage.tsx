@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
   BookOpen,
   FileText,
   GraduationCap,
+  Layers,
   ListChecks,
+  PlayCircle,
   PlusCircle,
   ShieldCheck,
+  Target,
   Users,
 } from "lucide-react";
 
@@ -24,6 +27,12 @@ type Student = {
   classe: string;
 };
 
+type CoursePart = {
+  _id: string;
+  titre: string;
+  description: string;
+};
+
 type Course = {
   _id: string;
   titre: string;
@@ -32,6 +41,7 @@ type Course = {
   matiere: string;
   contenuTexte: string;
   pdfUrl?: string;
+  parties?: CoursePart[];
   etudiantsAutorises?: Student[];
 };
 
@@ -39,24 +49,25 @@ type Quiz = {
   _id: string;
   titre: string;
   description: string;
-  difficulte: "easy" | "medium" | "hard";
+  type?: "diagnostic" | "practice";
+  partieId?: string;
   questions: {
     _id: string;
     question: string;
     choix: string[];
+    partieId?: string;
+    competence?: string;
   }[];
 };
 
-const difficulteLabel = {
-  easy: "Facile",
-  medium: "Moyen",
-  hard: "Difficile",
+const quizTypeLabel = {
+  diagnostic: "Diagnostic général",
+  practice: "Exercice d’entraînement",
 };
 
-const difficultyStyle = {
-  easy: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  medium: "bg-amber-50 text-amber-700 border-amber-200",
-  hard: "bg-rose-50 text-rose-700 border-rose-200",
+const quizTypeStyle = {
+  diagnostic: "bg-blue-50 text-blue-700 border-blue-200",
+  practice: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
 function TeacherCourseDetailPage() {
@@ -98,6 +109,40 @@ function TeacherCourseDetailPage() {
 
     fetchCourseDetail();
   }, [courseId]);
+
+  const diagnosticQuiz = useMemo(
+    () => quizzes.find((quiz) => (quiz.type || "diagnostic") === "diagnostic"),
+    [quizzes]
+  );
+
+  const sortedQuizzes = useMemo(() => {
+    return [...quizzes].sort((a, b) => {
+      const typeA = a.type || "diagnostic";
+      const typeB = b.type || "diagnostic";
+
+      if (typeA === "diagnostic" && typeB !== "diagnostic") {
+        return -1;
+      }
+
+      if (typeA !== "diagnostic" && typeB === "diagnostic") {
+        return 1;
+      }
+
+      return a.titre.localeCompare(b.titre);
+    });
+  }, [quizzes]);
+
+  const getPartTitle = (partieId?: string) => {
+    if (!course || !partieId) {
+      return "";
+    }
+
+    const part = course.parties?.find(
+      (coursePart) => coursePart._id === partieId
+    );
+
+    return part?.titre || "";
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -202,8 +247,52 @@ function TeacherCourseDetailPage() {
               </div>
             </section>
 
+            {course.parties && course.parties.length > 0 && (
+              <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                    <Layers size={24} />
+                  </div>
+
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900">
+                      Parties du cours
+                    </h2>
+
+                    <p className="text-sm text-slate-500">
+                      Ces parties sont utilisées pour l’analyse adaptative des
+                      résultats.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                  {course.parties.map((part, index) => (
+                    <div
+                      key={part._id}
+                      className="rounded-2xl border border-slate-200 bg-slate-50 p-5"
+                    >
+                      <p className="text-xs font-semibold uppercase text-blue-600">
+                        Partie {index + 1}
+                      </p>
+
+                      <h3 className="mt-2 font-bold text-slate-900">
+                        {part.titre}
+                      </h3>
+
+                      {part.description && (
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                          {part.description}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+              <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm lg:col-span-2">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
                     <BookOpen size={24} />
@@ -229,57 +318,123 @@ function TeacherCourseDetailPage() {
                 </div>
               </div>
 
-              <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-                    <ShieldCheck size={23} />
+              <aside className="space-y-6">
+                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                      <Target size={23} />
+                    </div>
+
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900">
+                        Quiz général
+                      </h2>
+
+                      <p className="text-sm text-slate-500">
+                        Diagnostic principal associé au cours.
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-900">
-                      Accès étudiants
-                    </h2>
+                  {diagnosticQuiz ? (
+                    <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-5">
+                      <span className="inline-flex rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-semibold text-blue-700">
+                        Diagnostic général
+                      </span>
 
-                    <p className="text-sm text-slate-500">
-                      Étudiants qui peuvent consulter ce cours.
-                    </p>
-                  </div>
+                      <h3 className="mt-3 font-bold text-slate-900">
+                        {diagnosticQuiz.titre}
+                      </h3>
+
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {diagnosticQuiz.description || "Quiz diagnostique"}
+                      </p>
+
+                      <div className="mt-4 rounded-2xl bg-white/80 p-4">
+                        <p className="text-xs text-slate-500">Questions</p>
+                        <p className="mt-1 font-semibold text-slate-900">
+                          {diagnosticQuiz.questions.length} question(s)
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() =>
+                          navigate(`/professeur/quiz/${diagnosticQuiz._id}`)
+                        }
+                        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+                      >
+                        Voir le diagnostic
+                        <PlayCircle size={18} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-5 rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">
+                      Aucun quiz diagnostic général n’a encore été créé pour ce
+                      cours.
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => navigate("/professeur/quiz/nouveau")}
+                    className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                  >
+                    <PlusCircle size={18} />
+                    Ajouter un quiz
+                  </button>
                 </div>
 
-                {!course.etudiantsAutorises ||
-                course.etudiantsAutorises.length === 0 ? (
-                  <div className="mt-6 rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">
-                    Aucun étudiant n’a encore accès à ce cours.
+                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                      <ShieldCheck size={23} />
+                    </div>
+
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900">
+                        Accès étudiants
+                      </h2>
+
+                      <p className="text-sm text-slate-500">
+                        Étudiants qui peuvent consulter ce cours.
+                      </p>
+                    </div>
                   </div>
-                ) : (
-                  <div className="mt-6 space-y-3">
-                    {course.etudiantsAutorises.map((student) => (
-                      <div
-                        key={student._id}
-                        className="rounded-2xl border border-slate-200 bg-white p-4"
-                      >
-                        <p className="font-semibold text-slate-900">
-                          {student.prenom} {student.nom}
-                        </p>
 
-                        <p className="mt-1 text-sm text-slate-500">
-                          {student.email}
-                        </p>
+                  {!course.etudiantsAutorises ||
+                  course.etudiantsAutorises.length === 0 ? (
+                    <div className="mt-6 rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">
+                      Aucun étudiant n’a encore accès à ce cours.
+                    </div>
+                  ) : (
+                    <div className="mt-6 space-y-3">
+                      {course.etudiantsAutorises.map((student) => (
+                        <div
+                          key={student._id}
+                          className="rounded-2xl border border-slate-200 bg-white p-4"
+                        >
+                          <p className="font-semibold text-slate-900">
+                            {student.prenom} {student.nom}
+                          </p>
 
-                        <div className="mt-3 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                          {student.niveauScolaire} · {student.classe}
+                          <p className="mt-1 text-sm text-slate-500">
+                            {student.email}
+                          </p>
+
+                          <div className="mt-3 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                            {student.niveauScolaire} · {student.classe}
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
 
-                <button
-                  onClick={() => navigate("/professeur/cours/acces")}
-                  className="mt-5 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-                >
-                  Modifier les accès
-                </button>
+                  <button
+                    onClick={() => navigate("/professeur/cours/acces")}
+                    className="mt-5 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                  >
+                    Modifier les accès
+                  </button>
+                </div>
               </aside>
             </section>
 
@@ -296,7 +451,7 @@ function TeacherCourseDetailPage() {
                   </h2>
 
                   <p className="mt-2 text-sm text-slate-500">
-                    Liste des quiz associés à ce cours.
+                    Diagnostic général et entraînements associés à ce cours.
                   </p>
                 </div>
 
@@ -309,48 +464,80 @@ function TeacherCourseDetailPage() {
                 </button>
               </div>
 
-              {quizzes.length === 0 ? (
+              {sortedQuizzes.length === 0 ? (
                 <div className="mt-6 rounded-2xl bg-slate-50 p-6 text-sm text-slate-500">
                   Aucun quiz n’a encore été créé pour ce cours.
                 </div>
               ) : (
                 <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
-                  {quizzes.map((quiz) => (
-                    <article
-                      key={quiz._id}
-                      className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                    >
-                      <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
-                          difficultyStyle[quiz.difficulte]
-                        }`}
+                  {sortedQuizzes.map((quiz) => {
+                    const quizType = quiz.type || "diagnostic";
+                    const partTitle = getPartTitle(quiz.partieId);
+
+                    return (
+                      <article
+                        key={quiz._id}
+                        className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                       >
-                        {difficulteLabel[quiz.difficulte]}
-                      </span>
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <span
+                              className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${
+                                quizTypeStyle[quizType]
+                              }`}
+                            >
+                              {quizTypeLabel[quizType]}
+                            </span>
 
-                      <h3 className="mt-3 text-lg font-bold text-slate-900">
-                        {quiz.titre}
-                      </h3>
+                            <h3 className="mt-3 text-lg font-bold text-slate-900">
+                              {quiz.titre}
+                            </h3>
 
-                      <p className="mt-2 text-sm leading-6 text-slate-500">
-                        {quiz.description || "Quiz d’entraînement"}
-                      </p>
+                            <p className="mt-2 text-sm leading-6 text-slate-500">
+                              {quiz.description || "Quiz pédagogique"}
+                            </p>
+                          </div>
 
-                      <div className="mt-5 rounded-2xl bg-slate-50 p-4">
-                        <p className="text-xs text-slate-500">Questions</p>
-                        <p className="mt-1 font-semibold text-slate-900">
-                          {quiz.questions.length} question(s)
-                        </p>
-                      </div>
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                            <ListChecks size={23} />
+                          </div>
+                        </div>
 
-                      <button
-                        onClick={() => navigate(`/professeur/quiz/${quiz._id}`)}
-                        className="mt-5 w-full rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800"
-                      >
-                        Voir le quiz
-                      </button>
-                    </article>
-                  ))}
+                        <div className="mt-5 grid grid-cols-1 gap-3">
+                          <div className="rounded-2xl bg-slate-50 p-4">
+                            <p className="text-xs text-slate-500">Questions</p>
+                            <p className="mt-1 font-semibold text-slate-900">
+                              {quiz.questions.length} question(s)
+                            </p>
+                          </div>
+
+                          {partTitle && (
+                            <div className="rounded-2xl bg-emerald-50 p-4">
+                              <p className="text-xs text-emerald-700">
+                                Partie ciblée
+                              </p>
+
+                              <p className="mt-1 font-semibold text-emerald-900">
+                                {partTitle}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() =>
+                            navigate(`/professeur/quiz/${quiz._id}`)
+                          }
+                          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+                        >
+                          {quizType === "practice"
+                            ? "Voir l’entraînement"
+                            : "Voir le diagnostic"}
+                          <PlayCircle size={18} />
+                        </button>
+                      </article>
+                    );
+                  })}
                 </div>
               )}
             </section>

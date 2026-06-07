@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -97,12 +97,33 @@ function StudentCourseDetailPage() {
     fetchData();
   }, [courseId]);
 
+  const diagnosticQuiz = useMemo(
+    () => quizzes.find((quiz) => quiz.type === "diagnostic"),
+    [quizzes]
+  );
+
+  const sortedQuizzes = useMemo(() => {
+    return [...quizzes].sort((a, b) => {
+      if (a.type === "diagnostic" && b.type !== "diagnostic") {
+        return -1;
+      }
+
+      if (a.type !== "diagnostic" && b.type === "diagnostic") {
+        return 1;
+      }
+
+      return a.titre.localeCompare(b.titre);
+    });
+  }, [quizzes]);
+
   const getPartTitle = (partieId?: string) => {
     if (!course || !partieId) {
       return "";
     }
 
-    const part = course.parties?.find((coursePart) => coursePart._id === partieId);
+    const part = course.parties?.find(
+      (coursePart) => coursePart._id === partieId
+    );
 
     return part?.titre || "";
   };
@@ -244,7 +265,7 @@ function StudentCourseDetailPage() {
             )}
 
             <section className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2 rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+              <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm lg:col-span-2">
                 <div className="flex items-center gap-3">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
                     <BookOpen size={24} />
@@ -270,52 +291,109 @@ function StudentCourseDetailPage() {
                 </div>
               </div>
 
-              <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-                    <Target size={23} />
+              <aside className="space-y-6">
+                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                      <ListChecks size={23} />
+                    </div>
+
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900">
+                        Quiz général
+                      </h2>
+
+                      <p className="text-sm text-slate-500">
+                        Diagnostic principal du cours.
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-900">
-                      Diagnostic
-                    </h2>
+                  {diagnosticQuiz ? (
+                    <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-5">
+                      <span className="inline-flex rounded-full border border-blue-200 bg-white px-3 py-1 text-xs font-semibold text-blue-700">
+                        Diagnostic général
+                      </span>
 
-                    <p className="text-sm text-slate-500">
-                      Passez le quiz général pour obtenir une analyse par partie.
-                    </p>
-                  </div>
+                      <h3 className="mt-3 font-bold text-slate-900">
+                        {diagnosticQuiz.titre}
+                      </h3>
+
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {diagnosticQuiz.description || "Quiz diagnostique"}
+                      </p>
+
+                      <div className="mt-4 rounded-2xl bg-white/80 p-4">
+                        <p className="text-xs text-slate-500">Questions</p>
+                        <p className="mt-1 font-semibold text-slate-900">
+                          {diagnosticQuiz.questions.length} question(s)
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() =>
+                          navigate(`/etudiant/quiz/${diagnosticQuiz._id}`)
+                        }
+                        className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+                      >
+                        Commencer le diagnostic
+                        <PlayCircle size={18} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-5 rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">
+                      Aucun diagnostic général disponible pour ce cours.
+                    </div>
+                  )}
                 </div>
 
-                <div className="mt-6 space-y-3">
-                  <div className="rounded-2xl bg-slate-50 p-4">
-                    <p className="text-xs text-slate-500">Cours</p>
-                    <p className="mt-1 font-semibold text-slate-900">
-                      Disponible
-                    </p>
+                <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                      <Target size={23} />
+                    </div>
+
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900">
+                        Diagnostic IA
+                      </h2>
+
+                      <p className="text-sm text-slate-500">
+                        Consultez vos recommandations après le diagnostic.
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 p-4">
-                    <p className="text-xs text-slate-500">Quiz</p>
-                    <p className="mt-1 font-semibold text-slate-900">
-                      {quizzes.length} exercice(s)
-                    </p>
+                  <div className="mt-6 space-y-3">
+                    <div className="rounded-2xl bg-slate-50 p-4">
+                      <p className="text-xs text-slate-500">Cours</p>
+                      <p className="mt-1 font-semibold text-slate-900">
+                        Disponible
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-slate-50 p-4">
+                      <p className="text-xs text-slate-500">Quiz</p>
+                      <p className="mt-1 font-semibold text-slate-900">
+                        {quizzes.length} quiz disponible(s)
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-slate-50 p-4">
+                      <p className="text-xs text-slate-500">Recommandations</p>
+                      <p className="mt-1 font-semibold text-slate-900">
+                        Après le diagnostic
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="rounded-2xl bg-slate-50 p-4">
-                    <p className="text-xs text-slate-500">Recommandations</p>
-                    <p className="mt-1 font-semibold text-slate-900">
-                      Après le diagnostic
-                    </p>
-                  </div>
+                  <button
+                    onClick={() => navigate("/etudiant/recommandations")}
+                    className="mt-5 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                  >
+                    Voir mes recommandations
+                  </button>
                 </div>
-
-                <button
-                  onClick={() => navigate("/etudiant/recommandations")}
-                  className="mt-5 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-                >
-                  Voir mes recommandations
-                </button>
               </aside>
             </section>
 
@@ -332,18 +410,19 @@ function StudentCourseDetailPage() {
                   </h2>
 
                   <p className="mt-2 text-sm text-slate-500">
-                    Passez un diagnostic général ou entraînez-vous sur une partie ciblée.
+                    Passez un diagnostic général ou entraînez-vous sur une
+                    partie ciblée.
                   </p>
                 </div>
               </div>
 
-              {quizzes.length === 0 ? (
+              {sortedQuizzes.length === 0 ? (
                 <div className="mt-6 rounded-2xl bg-slate-50 p-6 text-sm text-slate-500">
                   Aucun quiz disponible pour ce cours.
                 </div>
               ) : (
                 <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2">
-                  {quizzes.map((quiz) => {
+                  {sortedQuizzes.map((quiz) => {
                     const partTitle = getPartTitle(quiz.partieId);
 
                     return (
