@@ -119,18 +119,6 @@ const quizTypeStyle = {
   practice: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
-const statutLabel = {
-  maitrise: "Maîtrisé",
-  a_renforcer: "À renforcer",
-  fragile: "Fragile",
-};
-
-const statutStyle = {
-  maitrise: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  a_renforcer: "bg-amber-50 text-amber-700 border-amber-200",
-  fragile: "bg-rose-50 text-rose-700 border-rose-200",
-};
-
 const prioriteStyle = {
   prioritaire: "bg-rose-50 text-rose-700 border-rose-200",
   a_revoir: "bg-amber-50 text-amber-700 border-amber-200",
@@ -147,15 +135,6 @@ const niveauLabel = {
   weak: "À renforcer",
   medium: "Moyen",
   strong: "Solide",
-};
-
-const competenceLabel: Record<string, string> = {
-  comprehension: "Compréhension",
-  calcul: "Calcul",
-  resolution_equation: "Résolution d’équation",
-  application_regle: "Application d’une règle",
-  raisonnement: "Raisonnement",
-  autre: "Autre",
 };
 
 function TeacherCourseDetailPage() {

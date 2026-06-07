@@ -6,7 +6,6 @@ import {
   Brain,
   FileQuestion,
   HelpCircle,
-  Layers,
   PlusCircle,
   Save,
   Sigma,
