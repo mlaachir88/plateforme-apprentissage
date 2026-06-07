@@ -4,6 +4,7 @@ import Course from "../models/Course.js";
 import Quiz from "../models/Quiz.js";
 import Result from "../models/Result.js";
 import { generateAiDiagnostic } from "../services/aiDiagnosticService.js";
+import { generateErrorExplanations } from "../services/aiErrorExplanationService.js";
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -370,6 +371,110 @@ export const submitQuiz = async (req, res) => {
 
     res.status(500).json({
       message: "Erreur lors de la soumission du quiz",
+      error: error.message,
+    });
+  }
+};
+
+export const explainQuizErrors = async (req, res) => {
+  try {
+    const { quizId } = req.params;
+    const { answers } = req.body;
+
+    if (!isValidObjectId(quizId)) {
+      return res.status(400).json({
+        message: "Identifiant du quiz invalide",
+      });
+    }
+
+    if (!Array.isArray(answers)) {
+      return res.status(400).json({
+        message: "Les réponses doivent être envoyées sous forme de tableau",
+      });
+    }
+
+    const quiz = await Quiz.findById(quizId).populate("course");
+
+    if (!quiz) {
+      return res.status(404).json({
+        message: "Quiz introuvable",
+      });
+    }
+
+    const course = quiz.course;
+
+    if (!course) {
+      return res.status(404).json({
+        message: "Cours associé introuvable",
+      });
+    }
+
+    const isAuthorized = course.etudiantsAutorises.some(
+      (studentId) => studentId.toString() === req.user._id.toString()
+    );
+
+    if (!isAuthorized) {
+      return res.status(403).json({
+        message: "Accès refusé à ce quiz",
+      });
+    }
+
+    if (answers.length !== quiz.questions.length) {
+      return res.status(400).json({
+        message: "Le nombre de réponses ne correspond pas au nombre de questions",
+      });
+    }
+
+    const errors = [];
+
+    quiz.questions.forEach((question, index) => {
+      const studentAnswer = answers[index];
+      const isCorrect = studentAnswer === question.bonneReponse;
+
+      if (!isCorrect) {
+        const partieId = question.partieId || "";
+
+        const partie = course.parties?.find(
+          (coursePart) => coursePart._id.toString() === partieId
+        );
+
+        errors.push({
+          index,
+          question: question.question,
+          studentAnswer,
+          correctAnswer: question.bonneReponse,
+          competence: question.competence || "autre",
+          partie: partie?.titre || "Partie non définie",
+        });
+      }
+    });
+
+    if (errors.length === 0) {
+      return res.status(200).json({
+        message: "Aucune erreur à expliquer",
+        source: "none",
+        explanations: [],
+      });
+    }
+
+    const aiResult = await generateErrorExplanations({
+      courseTitle: course.titre,
+      quizTitle: quiz.titre,
+      errors,
+    });
+
+    return res.status(200).json({
+      message: "Explications générées avec succès",
+      source: aiResult.source,
+      errorCode: aiResult.errorCode || "",
+      totalErrors: errors.length,
+      explanations: aiResult.explanations,
+    });
+  } catch (error) {
+    console.error("Erreur explainQuizErrors :", error.message);
+
+    res.status(500).json({
+      message: "Erreur lors de la génération des explications",
       error: error.message,
     });
   }

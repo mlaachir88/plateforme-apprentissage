@@ -169,6 +169,10 @@ function StudentQuizPage() {
         answers,
       });
 
+      if (quizId) {
+        sessionStorage.setItem(`quiz_answers_${quizId}`, JSON.stringify(answers));
+      }
+
       setResult({
         score: response.data.score,
         niveau: response.data.niveau,
@@ -182,6 +186,15 @@ function StudentQuizPage() {
       );
     } finally {
       setSoumission(false);
+    }
+  };
+
+  const handleRetry = () => {
+    setResult(null);
+    setAnswers(new Array(quiz?.questions.length || 0).fill(""));
+
+    if (quizId) {
+      sessionStorage.removeItem(`quiz_answers_${quizId}`);
     }
   };
 
@@ -488,7 +501,7 @@ function StudentQuizPage() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
                   <button
                     onClick={() => navigate("/etudiant")}
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
@@ -498,14 +511,19 @@ function StudentQuizPage() {
                   </button>
 
                   <button
-                    onClick={() => {
-                      setResult(null);
-                      setAnswers(new Array(quiz.questions.length).fill(""));
-                    }}
+                    onClick={handleRetry}
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
                   >
                     <RotateCcw size={17} />
                     Refaire
+                  </button>
+
+                  <button
+                    onClick={() => navigate(`/etudiant/quiz/${quizId}/explications`)}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700"
+                  >
+                    <Sparkles size={17} />
+                    Expliquer mes erreurs
                   </button>
 
                   <button
