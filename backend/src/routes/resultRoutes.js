@@ -4,6 +4,7 @@ import {
   getMyResults,
   getTeacherResults,
   getMyRecommendations,
+  getTeacherCourseAnalysis,
 } from "../controllers/resultController.js";
 
 import {
@@ -32,6 +33,13 @@ router.get(
   protect,
   authorizeRoles("student"),
   getMyRecommendations
+);
+
+router.get(
+  "/course/:courseId/teacher-analysis",
+  protect,
+  authorizeRoles("teacher"),
+  getTeacherCourseAnalysis
 );
 
 export default router;

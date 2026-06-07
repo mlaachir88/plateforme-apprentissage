@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
+  AlertCircle,
   ArrowLeft,
   BookOpen,
+  BrainCircuit,
   FileText,
   GraduationCap,
   Layers,
@@ -10,6 +12,7 @@ import {
   PlayCircle,
   PlusCircle,
   ShieldCheck,
+  Sparkles,
   Target,
   Users,
 } from "lucide-react";
@@ -60,6 +63,52 @@ type Quiz = {
   }[];
 };
 
+type TeacherAnalysis = {
+  source: "openai" | "fallback" | "none";
+  errorCode?: string;
+  stats: {
+    studentsCount: number;
+    studentsWithResults: number;
+    resultsCount: number;
+    latestResultsCount: number;
+    averageScore: number;
+  };
+  partiesAnalysis: {
+    partieId: string;
+    titre: string;
+    scoreMoyen: number;
+    statut: "maitrise" | "a_renforcer" | "fragile";
+    priorite: "prioritaire" | "a_revoir" | "satisfaisant";
+    totalQuestions: number;
+    bonnesReponses: number;
+    studentsCount: number;
+  }[];
+  competencesFaibles: {
+    competence: string;
+    erreurs: number;
+  }[];
+  studentsToSupport: {
+    studentId: string;
+    prenom: string;
+    nom: string;
+    email: string;
+    niveauScolaire: string;
+    classe: string;
+    score: number;
+    niveauDetecte: "weak" | "medium" | "strong";
+    partieFaible: string;
+    createdAt: string;
+  }[];
+  ai: {
+    source: "openai" | "fallback";
+    errorCode?: string;
+    synthese: string;
+    planAction: string;
+    groupes: string;
+    resumeClasse: string;
+  } | null;
+};
+
 const quizTypeLabel = {
   diagnostic: "Diagnostic général",
   practice: "Exercice d’entraînement",
@@ -70,14 +119,58 @@ const quizTypeStyle = {
   practice: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
+const statutLabel = {
+  maitrise: "Maîtrisé",
+  a_renforcer: "À renforcer",
+  fragile: "Fragile",
+};
+
+const statutStyle = {
+  maitrise: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  a_renforcer: "bg-amber-50 text-amber-700 border-amber-200",
+  fragile: "bg-rose-50 text-rose-700 border-rose-200",
+};
+
+const prioriteStyle = {
+  prioritaire: "bg-rose-50 text-rose-700 border-rose-200",
+  a_revoir: "bg-amber-50 text-amber-700 border-amber-200",
+  satisfaisant: "bg-emerald-50 text-emerald-700 border-emerald-200",
+};
+
+const prioriteLabel = {
+  prioritaire: "Prioritaire",
+  a_revoir: "À revoir",
+  satisfaisant: "Satisfaisant",
+};
+
+const niveauLabel = {
+  weak: "À renforcer",
+  medium: "Moyen",
+  strong: "Solide",
+};
+
+const competenceLabel: Record<string, string> = {
+  comprehension: "Compréhension",
+  calcul: "Calcul",
+  resolution_equation: "Résolution d’équation",
+  application_regle: "Application d’une règle",
+  raisonnement: "Raisonnement",
+  autre: "Autre",
+};
+
 function TeacherCourseDetailPage() {
   const navigate = useNavigate();
   const { courseId } = useParams();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [teacherAnalysis, setTeacherAnalysis] =
+    useState<TeacherAnalysis | null>(null);
+
   const [chargement, setChargement] = useState(true);
+  const [chargementAnalyse, setChargementAnalyse] = useState(false);
   const [erreur, setErreur] = useState("");
+  const [erreurAnalyse, setErreurAnalyse] = useState("");
 
   useEffect(() => {
     const fetchCourseDetail = async () => {
@@ -108,6 +201,34 @@ function TeacherCourseDetailPage() {
     };
 
     fetchCourseDetail();
+  }, [courseId]);
+
+  useEffect(() => {
+    const fetchTeacherAnalysis = async () => {
+      if (!courseId) {
+        return;
+      }
+
+      setChargementAnalyse(true);
+      setErreurAnalyse("");
+
+      try {
+        const response = await api.get(
+          `/results/course/${courseId}/teacher-analysis`
+        );
+
+        setTeacherAnalysis(response.data);
+      } catch (error: any) {
+        setErreurAnalyse(
+          error.response?.data?.message ||
+            "Erreur lors du chargement de l’analyse IA"
+        );
+      } finally {
+        setChargementAnalyse(false);
+      }
+    };
+
+    fetchTeacherAnalysis();
   }, [courseId]);
 
   const diagnosticQuiz = useMemo(
@@ -381,6 +502,195 @@ function TeacherCourseDetailPage() {
                     <PlusCircle size={18} />
                     Ajouter un quiz
                   </button>
+                </div>
+
+                <div className="rounded-3xl border border-indigo-100 bg-white p-6 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                      <BrainCircuit size={23} />
+                    </div>
+
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-lg font-bold text-slate-900">
+                          Analyse IA de la classe
+                        </h2>
+
+                        {teacherAnalysis?.ai && (
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
+                              teacherAnalysis.ai.source === "openai"
+                                ? "bg-emerald-50 text-emerald-700"
+                                : "bg-slate-100 text-slate-600"
+                            }`}
+                          >
+                            <Sparkles size={13} />
+                            {teacherAnalysis.ai.source === "openai"
+                              ? "IA"
+                              : "Auto"}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-sm text-slate-500">
+                        Synthèse des résultats et plan d’action.
+                      </p>
+                    </div>
+                  </div>
+
+                  {chargementAnalyse && (
+                    <div className="mt-5 rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">
+                      Génération de l’analyse IA...
+                    </div>
+                  )}
+
+                  {!chargementAnalyse && erreurAnalyse && (
+                    <div className="mt-5 rounded-2xl border border-red-100 bg-red-50 p-5 text-sm text-red-700">
+                      <div className="flex gap-2">
+                        <AlertCircle size={18} />
+                        <span>{erreurAnalyse}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {!chargementAnalyse &&
+                    !erreurAnalyse &&
+                    teacherAnalysis &&
+                    !teacherAnalysis.ai && (
+                      <div className="mt-5 rounded-2xl bg-slate-50 p-5 text-sm text-slate-500">
+                        Aucun résultat disponible pour générer une analyse.
+                      </div>
+                    )}
+
+                  {!chargementAnalyse &&
+                    !erreurAnalyse &&
+                    teacherAnalysis?.ai && (
+                      <div className="mt-5 space-y-4">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="rounded-2xl bg-indigo-50 p-4">
+                            <p className="text-xs text-indigo-700">
+                              Score moyen
+                            </p>
+                            <p className="mt-1 text-2xl font-bold text-indigo-900">
+                              {teacherAnalysis.stats.averageScore}%
+                            </p>
+                          </div>
+
+                          <div className="rounded-2xl bg-slate-50 p-4">
+                            <p className="text-xs text-slate-500">
+                              Élèves analysés
+                            </p>
+                            <p className="mt-1 text-2xl font-bold text-slate-900">
+                              {teacherAnalysis.stats.studentsWithResults}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-5">
+                          <p className="flex items-center gap-2 text-sm font-semibold text-indigo-900">
+                            <Sparkles size={16} />
+                            Synthèse IA
+                          </p>
+
+                          <p className="mt-2 text-sm leading-6 text-indigo-800">
+                            {teacherAnalysis.ai.synthese}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-slate-50 p-5">
+                          <p className="text-sm font-semibold text-slate-900">
+                            Plan d’action pédagogique
+                          </p>
+
+                          <p className="mt-2 text-sm leading-6 text-slate-600">
+                            {teacherAnalysis.ai.planAction}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-violet-50 p-5">
+                          <p className="text-sm font-semibold text-violet-900">
+                            Groupes et accompagnement
+                          </p>
+
+                          <p className="mt-2 text-sm leading-6 text-violet-800">
+                            {teacherAnalysis.ai.groupes}
+                          </p>
+                        </div>
+
+                        {teacherAnalysis.partiesAnalysis.length > 0 && (
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900">
+                              Parties prioritaires
+                            </p>
+
+                            <div className="mt-3 space-y-2">
+                              {teacherAnalysis.partiesAnalysis
+                                .slice(0, 3)
+                                .map((partie) => (
+                                  <div
+                                    key={partie.partieId}
+                                    className="rounded-2xl border border-slate-200 bg-white p-4"
+                                  >
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div>
+                                        <p className="font-semibold text-slate-900">
+                                          {partie.titre}
+                                        </p>
+
+                                        <p className="mt-1 text-sm text-slate-500">
+                                          Score moyen : {partie.scoreMoyen}%
+                                        </p>
+                                      </div>
+
+                                      <span
+                                        className={`rounded-full border px-3 py-1 text-xs font-semibold ${
+                                          prioriteStyle[partie.priorite]
+                                        }`}
+                                      >
+                                        {prioriteLabel[partie.priorite]}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {teacherAnalysis.studentsToSupport.length > 0 && (
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900">
+                              Élèves à accompagner
+                            </p>
+
+                            <div className="mt-3 space-y-2">
+                              {teacherAnalysis.studentsToSupport
+                                .slice(0, 3)
+                                .map((student) => (
+                                  <div
+                                    key={student.studentId}
+                                    className="rounded-2xl border border-rose-100 bg-rose-50 p-4"
+                                  >
+                                    <p className="font-semibold text-rose-900">
+                                      {student.prenom} {student.nom}
+                                    </p>
+
+                                    <p className="mt-1 text-sm text-rose-700">
+                                      Score : {student.score}% ·{" "}
+                                      {niveauLabel[student.niveauDetecte]}
+                                    </p>
+
+                                    {student.partieFaible && (
+                                      <p className="mt-1 text-xs text-rose-600">
+                                        Partie faible : {student.partieFaible}
+                                      </p>
+                                    )}
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                 </div>
 
                 <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
