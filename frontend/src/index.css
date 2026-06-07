@@ -1,0 +1,10 @@
+@import "tailwindcss";
+@import "katex/dist/katex.min.css";
+
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background-color: #f8fafc;
+  color: #0f172a;
+}

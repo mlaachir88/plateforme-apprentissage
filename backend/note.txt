@@ -1,0 +1,6 @@
+0DjTqjY2P6sxHsGk
+
+mlaachir8888_db_user
+
+
+mongodb+srv://mlaachir8888_db_user:0DjTqjY2P6sxHsGk@cluster0.l58o29e.mongodb.net/?appName=Cluster0
