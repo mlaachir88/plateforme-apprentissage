@@ -31,4 +31,4 @@ logs/
 .vscode/
 
 # Seed scripts locaux
-backend/src/seeds/*.js
+backend/src/seeds
