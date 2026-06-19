@@ -15,38 +15,38 @@ import {
 
 function LandingPage() {
   return (
-    <div className="min-h-screen overflow-hidden bg-[#f8fafc] text-slate-950">
+    <div className="min-h-screen overflow-hidden bg-[#fbf8ff] text-slate-950">
       <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute left-1/2 top-[-180px] h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-blue-200/40 blur-3xl" />
-        <div className="absolute right-[-180px] top-[220px] h-[420px] w-[420px] rounded-full bg-indigo-200/40 blur-3xl" />
-        <div className="absolute bottom-[-220px] left-[-120px] h-[480px] w-[480px] rounded-full bg-emerald-200/35 blur-3xl" />
+        <div className="absolute left-1/2 top-[-180px] h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-violet-200/40 blur-3xl" />
+        <div className="absolute right-[-180px] top-[220px] h-[420px] w-[420px] rounded-full bg-fuchsia-200/25 blur-3xl" />
+        <div className="absolute bottom-[-220px] left-[-120px] h-[480px] w-[480px] rounded-full bg-amber-100/35 blur-3xl" />
       </div>
 
-      <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/75 backdrop-blur-2xl">
+      <header className="sticky top-0 z-40 border-b border-violet-100 bg-white/80 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
           <Link to="/" className="group flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 shadow-sm shadow-blue-100/60 transition group-hover:scale-105">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-xl shadow-violet-600/20 transition group-hover:scale-105">
               <GraduationCap size={22} />
             </div>
 
             <div>
-              <p className="text-sm font-semibold leading-none text-blue-600">
+              <p className="text-sm font-bold leading-none text-violet-600">
                 Plateforme d’apprentissage
               </p>
-              <h1 className="mt-1 text-base font-bold tracking-tight text-slate-950">
+              <h1 className="mt-1 text-base font-black tracking-tight text-slate-950">
                 Démo éducative adaptive
               </h1>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-7 text-sm font-medium text-slate-600 md:flex">
-            <a href="#fonctionnalites" className="hover:text-slate-950">
+          <nav className="hidden items-center gap-7 text-sm font-bold text-slate-600 md:flex">
+            <a href="#fonctionnalites" className="hover:text-violet-700">
               Fonctionnalités
             </a>
-            <a href="#ia" className="hover:text-slate-950">
+            <a href="#ia" className="hover:text-violet-700">
               Intelligence IA
             </a>
-            <a href="#espaces" className="hover:text-slate-950">
+            <a href="#espaces" className="hover:text-violet-700">
               Espaces
             </a>
           </nav>
@@ -54,14 +54,14 @@ function LandingPage() {
           <div className="flex items-center gap-2">
             <Link
               to="/connexion"
-              className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+              className="rounded-full border border-violet-100 bg-white px-4 py-2.5 text-sm font-bold text-violet-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-violet-50 hover:shadow-md"
             >
               Connexion
             </Link>
 
             <Link
               to="/inscription"
-              className="hidden rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:-translate-y-0.5 hover:bg-slate-800 sm:inline-flex"
+              className="hidden rounded-full bg-violet-600 px-4 py-2.5 text-sm font-bold text-white shadow-xl shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-700 sm:inline-flex"
             >
               Créer un compte
             </Link>
@@ -73,7 +73,7 @@ function LandingPage() {
         <section className="mx-auto max-w-7xl px-5 pb-12 pt-14 md:px-8 md:pb-20 md:pt-20">
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm shadow-blue-100/60 backdrop-blur-xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-violet-100 bg-white/85 px-4 py-2 text-sm font-bold text-violet-700 shadow-sm shadow-violet-100/60 backdrop-blur-xl">
                 <Sparkles size={16} />
                 Mathématiques · Collège · IA adaptative
               </div>
@@ -91,7 +91,7 @@ function LandingPage() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   to="/connexion"
-                  className="group inline-flex items-center justify-center gap-2 rounded-full bg-blue-600 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700"
+                  className="group inline-flex items-center justify-center gap-2 rounded-full bg-violet-600 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-700"
                 >
                   Se connecter
                   <ArrowRight
@@ -102,14 +102,14 @@ function LandingPage() {
 
                 <Link
                   to="/inscription"
-                  className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50"
+                  className="inline-flex items-center justify-center rounded-full border border-violet-100 bg-white px-6 py-3.5 text-sm font-bold text-violet-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-violet-50"
                 >
                   Créer un compte étudiant
                 </Link>
               </div>
 
               <div className="mt-10 grid max-w-2xl grid-cols-1 gap-3 sm:grid-cols-3">
-                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-xl">
+                <div className="rounded-3xl border border-violet-100 bg-white/85 p-4 shadow-sm backdrop-blur-xl">
                   <p className="text-2xl font-bold tracking-tight text-slate-950">
                     IA
                   </p>
@@ -118,7 +118,7 @@ function LandingPage() {
                   </p>
                 </div>
 
-                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-xl">
+                <div className="rounded-3xl border border-fuchsia-100 bg-white/85 p-4 shadow-sm backdrop-blur-xl">
                   <p className="text-2xl font-bold tracking-tight text-slate-950">
                     2
                   </p>
@@ -127,7 +127,7 @@ function LandingPage() {
                   </p>
                 </div>
 
-                <div className="rounded-3xl border border-slate-200/80 bg-white/80 p-4 shadow-sm backdrop-blur-xl">
+                <div className="rounded-3xl border border-amber-100 bg-white/85 p-4 shadow-sm backdrop-blur-xl">
                   <p className="text-2xl font-bold tracking-tight text-slate-950">
                     100%
                   </p>
@@ -139,15 +139,15 @@ function LandingPage() {
             </div>
 
             <div className="relative">
-              <div className="absolute -inset-5 rounded-[2.5rem] bg-gradient-to-br from-blue-200/60 via-indigo-100/60 to-emerald-100/60 blur-2xl" />
+              <div className="absolute -inset-5 rounded-[2.5rem] bg-violet-200/35 blur-2xl" />
 
-              <div className="relative rounded-[2rem] border border-white bg-white/75 p-4 shadow-2xl shadow-slate-200/80 backdrop-blur-2xl md:p-5">
-                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-3">
+              <div className="relative rounded-[2rem] border border-violet-100 bg-white/85 p-4 shadow-2xl shadow-violet-100/60 backdrop-blur-2xl md:p-5">
+                <div className="rounded-[1.5rem] border border-violet-100 bg-slate-50/80 p-3">
                   <div className="grid grid-cols-12 gap-3">
-                    <div className="col-span-12 rounded-[1.35rem] border border-slate-200 bg-white p-5 shadow-sm">
+                    <div className="col-span-12 rounded-[1.35rem] border border-slate-100 bg-white p-5 shadow-sm">
                       <div className="flex items-start justify-between gap-4">
                         <div>
-                          <div className="inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+                          <div className="inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">
                             <BrainCircuit size={14} />
                             Analyse IA
                           </div>
@@ -157,8 +157,7 @@ function LandingPage() {
                           </h3>
 
                           <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-                            Diagnostic calculé à partir des réponses de
-                            l’élève.
+                            Diagnostic calculé à partir des réponses de l’élève.
                           </p>
                         </div>
 
@@ -197,9 +196,9 @@ function LandingPage() {
                       </div>
                     </div>
 
-                    <div className="col-span-12 rounded-[1.35rem] border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-5 shadow-sm md:col-span-7">
+                    <div className="col-span-12 rounded-[1.35rem] border border-violet-100 bg-violet-50/70 p-5 shadow-sm md:col-span-7">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-violet-600 shadow-sm">
                           <Target size={20} />
                         </div>
 
@@ -214,11 +213,11 @@ function LandingPage() {
                       </div>
 
                       <div className="mt-5 h-2 rounded-full bg-white">
-                        <div className="h-2 w-[72%] rounded-full bg-blue-600" />
+                        <div className="h-2 w-[72%] rounded-full bg-violet-600" />
                       </div>
                     </div>
 
-                    <div className="col-span-12 rounded-[1.35rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 to-teal-50 p-5 shadow-sm md:col-span-5">
+                    <div className="col-span-12 rounded-[1.35rem] border border-emerald-100 bg-emerald-50/80 p-5 shadow-sm md:col-span-5">
                       <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-sm">
                         <CheckCircle2 size={20} />
                       </div>
@@ -233,7 +232,7 @@ function LandingPage() {
                       </p>
                     </div>
 
-                    <div className="col-span-12 rounded-[1.35rem] border border-slate-200 bg-white p-5 shadow-sm">
+                    <div className="col-span-12 rounded-[1.35rem] border border-slate-100 bg-white p-5 shadow-sm">
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-bold text-slate-950">
@@ -255,7 +254,7 @@ function LandingPage() {
                             style={{ height: "82px" }}
                           >
                             <div
-                              className="w-full rounded-full bg-gradient-to-t from-blue-600 to-blue-300"
+                              className="w-full rounded-full bg-violet-600"
                               style={{ height: `${height}%` }}
                             />
                           </div>
@@ -269,10 +268,13 @@ function LandingPage() {
           </div>
         </section>
 
-        <section id="fonctionnalites" className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-16">
+        <section
+          id="fonctionnalites"
+          className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-16"
+        >
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm">
-              <Sparkles size={16} className="text-blue-600" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-violet-100 bg-white px-4 py-2 text-sm font-bold text-violet-700 shadow-sm">
+              <Sparkles size={16} />
               Fonctionnalités principales
             </div>
 
@@ -287,8 +289,8 @@ function LandingPage() {
           </div>
 
           <div className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-6">
-            <article className="group rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70 md:col-span-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+            <article className="group rounded-[2rem] border border-violet-100 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-100/70 md:col-span-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
                 <BookOpen size={24} />
               </div>
 
@@ -305,14 +307,14 @@ function LandingPage() {
                 <div className="h-3 w-4/5 rounded-full bg-slate-200" />
                 <div className="mt-3 h-3 w-3/5 rounded-full bg-slate-200" />
                 <div className="mt-5 rounded-2xl bg-white p-4 shadow-sm">
-                  <div className="h-3 w-1/2 rounded-full bg-blue-200" />
+                  <div className="h-3 w-1/2 rounded-full bg-violet-200" />
                   <div className="mt-3 h-3 w-full rounded-full bg-slate-200" />
                   <div className="mt-2 h-3 w-4/6 rounded-full bg-slate-200" />
                 </div>
               </div>
             </article>
 
-            <article className="group rounded-[2rem] border border-slate-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/70 md:col-span-3">
+            <article className="group rounded-[2rem] border border-emerald-100 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-100/50 md:col-span-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
                 <BarChart3 size={24} />
               </div>
@@ -332,13 +334,13 @@ function LandingPage() {
                   <p className="mt-2 text-2xl font-bold text-slate-950">76%</p>
                 </div>
 
-                <div className="rounded-3xl bg-blue-50 p-4">
-                  <p className="text-xs font-bold text-blue-700">Niveau</p>
+                <div className="rounded-3xl bg-violet-50 p-4">
+                  <p className="text-xs font-bold text-violet-700">Niveau</p>
                   <p className="mt-2 text-2xl font-bold text-slate-950">Bon</p>
                 </div>
 
-                <div className="rounded-3xl bg-indigo-50 p-4">
-                  <p className="text-xs font-bold text-indigo-700">IA</p>
+                <div className="rounded-3xl bg-fuchsia-50 p-4">
+                  <p className="text-xs font-bold text-fuchsia-700">IA</p>
                   <p className="mt-2 text-2xl font-bold text-slate-950">On</p>
                 </div>
               </div>
@@ -346,9 +348,9 @@ function LandingPage() {
 
             <article
               id="ia"
-              className="rounded-[2rem] border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-7 shadow-sm md:col-span-4"
+              className="rounded-[2rem] border border-violet-100 bg-white p-7 shadow-sm md:col-span-4"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-blue-600 shadow-sm">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
                 <BrainCircuit size={24} />
               </div>
 
@@ -363,7 +365,7 @@ function LandingPage() {
               </p>
 
               <div className="mt-7 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="rounded-3xl border border-blue-100 bg-white/80 p-5">
+                <div className="rounded-3xl border border-violet-100 bg-violet-50/60 p-5">
                   <p className="text-sm font-bold text-slate-950">
                     Diagnostic étudiant
                   </p>
@@ -373,7 +375,7 @@ function LandingPage() {
                   </p>
                 </div>
 
-                <div className="rounded-3xl border border-blue-100 bg-white/80 p-5">
+                <div className="rounded-3xl border border-fuchsia-100 bg-fuchsia-50/60 p-5">
                   <p className="text-sm font-bold text-slate-950">
                     Analyse professeur
                   </p>
@@ -417,16 +419,19 @@ function LandingPage() {
           </div>
         </section>
 
-        <section id="espaces" className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-16">
+        <section
+          id="espaces"
+          className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-16"
+        >
           <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+            <article className="rounded-[2rem] border border-violet-100 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-600">
+                <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-violet-50 text-violet-600">
                   <GraduationCap size={27} />
                 </div>
 
                 <div>
-                  <p className="text-sm font-bold text-blue-600">
+                  <p className="text-sm font-bold text-violet-600">
                     Espace étudiant
                   </p>
                   <h3 className="mt-1 text-2xl font-bold tracking-tight text-slate-950">
@@ -449,7 +454,7 @@ function LandingPage() {
                   >
                     <CheckCircle2
                       size={20}
-                      className="mt-0.5 shrink-0 text-blue-600"
+                      className="mt-0.5 shrink-0 text-violet-600"
                     />
                     <p className="text-sm font-medium leading-6 text-slate-700">
                       {item}
@@ -459,7 +464,7 @@ function LandingPage() {
               </div>
             </article>
 
-            <article className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">
+            <article className="rounded-[2rem] border border-emerald-100 bg-white p-8 shadow-sm">
               <div className="flex items-center gap-4">
                 <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-emerald-50 text-emerald-600">
                   <Users size={27} />
@@ -502,12 +507,12 @@ function LandingPage() {
         </section>
 
         <section className="mx-auto max-w-7xl px-5 pb-16 pt-8 md:px-8 md:pb-24">
-          <div className="overflow-hidden rounded-[2.3rem] border border-slate-200 bg-slate-950 shadow-2xl shadow-slate-300/40">
+          <div className="overflow-hidden rounded-[2.3rem] border border-violet-100 bg-slate-950 shadow-2xl shadow-violet-100/50">
             <div className="relative px-7 py-12 text-center md:px-12 md:py-16">
-              <div className="absolute left-1/2 top-[-220px] h-[420px] w-[620px] -translate-x-1/2 rounded-full bg-blue-500/25 blur-3xl" />
+              <div className="absolute left-1/2 top-[-220px] h-[420px] w-[620px] -translate-x-1/2 rounded-full bg-violet-500/25 blur-3xl" />
 
               <div className="relative z-10 mx-auto max-w-3xl">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-white/10 text-blue-200 ring-1 ring-white/10">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-white/10 text-violet-200 ring-1 ring-white/10">
                   <Sparkles size={27} />
                 </div>
 
@@ -542,7 +547,7 @@ function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white/70">
+      <footer className="border-t border-violet-100 bg-white/70">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-7 text-sm text-slate-500 md:flex-row md:items-center md:justify-between md:px-8">
           <p className="font-medium text-slate-600">
             Plateforme d’apprentissage adaptative

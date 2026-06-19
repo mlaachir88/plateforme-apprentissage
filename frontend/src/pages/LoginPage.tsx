@@ -43,34 +43,32 @@ function LoginPage() {
         navigate("/etudiant");
       }
     } catch (error: any) {
-      setErreur(
-        error.response?.data?.message || "Erreur lors de la connexion"
-      );
+      setErreur(error.response?.data?.message || "Erreur lors de la connexion");
     } finally {
       setChargement(false);
     }
   };
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[#f8fafc] text-slate-950">
+    <div className="min-h-screen overflow-hidden bg-[#fbf8ff] text-slate-950">
       <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute left-1/2 top-[-220px] h-[460px] w-[760px] -translate-x-1/2 rounded-full bg-blue-200/45 blur-3xl" />
-        <div className="absolute right-[-220px] top-[220px] h-[460px] w-[460px] rounded-full bg-indigo-200/45 blur-3xl" />
-        <div className="absolute bottom-[-240px] left-[-160px] h-[500px] w-[500px] rounded-full bg-emerald-200/35 blur-3xl" />
+        <div className="absolute left-1/2 top-[-220px] h-[460px] w-[760px] -translate-x-1/2 rounded-full bg-violet-200/40 blur-3xl" />
+        <div className="absolute right-[-220px] top-[220px] h-[460px] w-[460px] rounded-full bg-fuchsia-200/25 blur-3xl" />
+        <div className="absolute bottom-[-240px] left-[-160px] h-[500px] w-[500px] rounded-full bg-amber-100/35 blur-3xl" />
       </div>
 
-      <header className="border-b border-slate-200/70 bg-white/75 backdrop-blur-2xl">
+      <header className="border-b border-violet-100 bg-white/80 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8">
           <Link to="/" className="group flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 shadow-sm shadow-blue-100/60 transition group-hover:scale-105">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-xl shadow-violet-600/20 transition group-hover:scale-105">
               <GraduationCap size={22} />
             </div>
 
             <div>
-              <p className="text-sm font-semibold leading-none text-blue-600">
+              <p className="text-sm font-bold leading-none text-violet-600">
                 Plateforme d’apprentissage
               </p>
-              <h1 className="mt-1 text-base font-bold tracking-tight text-slate-950">
+              <h1 className="mt-1 text-base font-black tracking-tight text-slate-950">
                 Connexion sécurisée
               </h1>
             </div>
@@ -78,7 +76,7 @@ function LoginPage() {
 
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+            className="inline-flex items-center gap-2 rounded-full border border-violet-100 bg-white px-4 py-2.5 text-sm font-bold text-violet-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-violet-50 hover:shadow-md"
           >
             <ArrowLeft size={17} />
             Accueil
@@ -89,7 +87,7 @@ function LoginPage() {
       <main className="mx-auto grid min-h-[calc(100vh-80px)] max-w-7xl grid-cols-1 gap-8 px-5 py-8 md:px-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:py-14">
         <section className="order-2 hidden lg:order-1 lg:block">
           <div className="max-w-xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-blue-100 bg-white/80 px-4 py-2 text-sm font-bold text-blue-700 shadow-sm shadow-blue-100/60 backdrop-blur-xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-violet-100 bg-white/85 px-4 py-2 text-sm font-bold text-violet-700 shadow-sm shadow-violet-100/60 backdrop-blur-xl">
               <Sparkles size={16} />
               Espace intelligent pour apprendre et suivre
             </div>
@@ -105,9 +103,9 @@ function LoginPage() {
             </p>
 
             <div className="mt-9 grid grid-cols-1 gap-4">
-              <div className="rounded-[2rem] border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-xl">
+              <div className="rounded-[2rem] border border-violet-100 bg-white/90 p-5 shadow-sm shadow-violet-100/40 backdrop-blur-xl">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
                     <BrainCircuit size={24} />
                   </div>
 
@@ -123,7 +121,7 @@ function LoginPage() {
                 </div>
               </div>
 
-              <div className="rounded-[2rem] border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-xl">
+              <div className="rounded-[2rem] border border-emerald-100 bg-white/90 p-5 shadow-sm shadow-emerald-100/30 backdrop-blur-xl">
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
                     <ShieldCheck size={24} />
@@ -141,9 +139,9 @@ function LoginPage() {
                 </div>
               </div>
 
-              <div className="rounded-[2rem] border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-xl">
+              <div className="rounded-[2rem] border border-fuchsia-100 bg-white/90 p-5 shadow-sm shadow-fuchsia-100/30 backdrop-blur-xl">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-fuchsia-50 text-fuchsia-600">
                     <CheckCircle2 size={24} />
                   </div>
 
@@ -165,16 +163,16 @@ function LoginPage() {
         <section className="order-1 lg:order-2">
           <div className="mx-auto max-w-md lg:ml-auto lg:mr-0">
             <div className="relative">
-              <div className="absolute -inset-5 rounded-[2.5rem] bg-gradient-to-br from-blue-200/60 via-indigo-100/60 to-emerald-100/60 blur-2xl" />
+              <div className="absolute -inset-5 rounded-[2.5rem] bg-violet-200/35 blur-2xl" />
 
-              <div className="relative overflow-hidden rounded-[2.2rem] border border-white bg-white/85 p-5 shadow-2xl shadow-slate-200/80 backdrop-blur-2xl md:p-6">
-                <div className="rounded-[1.8rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+              <div className="relative overflow-hidden rounded-[2.2rem] border border-violet-100 bg-white/90 p-5 shadow-2xl shadow-violet-100/60 backdrop-blur-2xl md:p-6">
+                <div className="rounded-[1.8rem] border border-violet-100 bg-white p-6 shadow-sm md:p-8">
                   <div className="mb-8">
-                    <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 shadow-sm">
+                    <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-3xl bg-violet-50 text-violet-600 shadow-sm">
                       <LockKeyhole size={27} />
                     </div>
 
-                    <p className="text-sm font-bold text-blue-600">
+                    <p className="text-sm font-bold text-violet-600">
                       Connexion
                     </p>
 
@@ -191,10 +189,10 @@ function LoginPage() {
                     <button
                       type="button"
                       disabled
-                      className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-400"
+                      className="flex items-center justify-center gap-2 rounded-2xl border border-violet-100 bg-white px-4 py-3 text-sm font-bold text-slate-500 shadow-sm disabled:cursor-not-allowed disabled:opacity-80"
                       title="Connexion Google bientôt disponible"
                     >
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-black text-slate-500">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-50 text-xs font-black text-violet-600">
                         G
                       </span>
                       Google
@@ -203,7 +201,7 @@ function LoginPage() {
                     <button
                       type="button"
                       disabled
-                      className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-400"
+                      className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-950 px-4 py-3 text-sm font-bold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-80"
                       title="Connexion Apple bientôt disponible"
                     >
                       <span className="text-lg leading-none"></span>
@@ -242,7 +240,7 @@ function LoginPage() {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 pl-11 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 pl-11 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
                           placeholder="exemple@email.com"
                         />
                       </div>
@@ -270,7 +268,7 @@ function LoginPage() {
                           value={motDePasse}
                           onChange={(e) => setMotDePasse(e.target.value)}
                           required
-                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 pl-11 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
+                          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 pl-11 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
                           placeholder="Votre mot de passe"
                         />
                       </div>
@@ -279,7 +277,7 @@ function LoginPage() {
                     <button
                       type="submit"
                       disabled={chargement}
-                      className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3.5 text-sm font-bold text-white shadow-xl shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                      className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-violet-600 px-4 py-3.5 text-sm font-bold text-white shadow-xl shadow-violet-600/20 transition hover:-translate-y-0.5 hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
                     >
                       {chargement ? "Connexion en cours..." : "Se connecter"}
                       {!chargement && (
@@ -291,12 +289,12 @@ function LoginPage() {
                     </button>
                   </form>
 
-                  <div className="mt-6 rounded-2xl bg-slate-50 p-4">
+                  <div className="mt-6 rounded-2xl bg-violet-50/60 p-4">
                     <p className="text-center text-sm leading-6 text-slate-500">
                       Pas encore de compte étudiant ?{" "}
                       <Link
                         to="/inscription"
-                        className="font-bold text-blue-600 hover:text-blue-700"
+                        className="font-bold text-violet-600 hover:text-violet-700"
                       >
                         Créer un compte
                       </Link>
@@ -305,9 +303,9 @@ function LoginPage() {
                 </div>
 
                 <div className="mt-4 grid grid-cols-3 gap-3">
-                  <div className="rounded-3xl bg-blue-50 p-4 text-center">
-                    <p className="text-lg font-bold text-blue-700">IA</p>
-                    <p className="mt-1 text-xs font-medium text-blue-600">
+                  <div className="rounded-3xl bg-violet-50 p-4 text-center">
+                    <p className="text-lg font-bold text-violet-700">IA</p>
+                    <p className="mt-1 text-xs font-medium text-violet-600">
                       Analyse
                     </p>
                   </div>
@@ -319,9 +317,9 @@ function LoginPage() {
                     </p>
                   </div>
 
-                  <div className="rounded-3xl bg-indigo-50 p-4 text-center">
-                    <p className="text-lg font-bold text-indigo-700">Web</p>
-                    <p className="mt-1 text-xs font-medium text-indigo-600">
+                  <div className="rounded-3xl bg-fuchsia-50 p-4 text-center">
+                    <p className="text-lg font-bold text-fuchsia-700">Web</p>
+                    <p className="mt-1 text-xs font-medium text-fuchsia-600">
                       Mobile
                     </p>
                   </div>
