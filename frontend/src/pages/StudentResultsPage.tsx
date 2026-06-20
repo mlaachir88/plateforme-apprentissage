@@ -35,6 +35,34 @@ type StoredUser = {
   };
 };
 
+type AnalyseParPartie = {
+  partieId: string;
+  titre: string;
+  totalQuestions: number;
+  bonnesReponses: number;
+  score: number;
+  statut: "maitrise" | "a_renforcer" | "fragile" | string;
+};
+
+type CompetenceFaible = {
+  competence: string;
+  erreurs: number;
+};
+
+type ResultDiagnostic = {
+  partieFaible?: string;
+  analyseParPartie?: AnalyseParPartie[];
+  competencesFaibles?: CompetenceFaible[];
+  commentaire?: string;
+  recommandation?: string;
+  ai?: {
+    synthese?: string;
+    competences?: string;
+    source?: "openai" | "fallback" | string;
+    errorCode?: string;
+  };
+};
+
 type StudentResult = {
   _id: string;
   score: number;
@@ -53,6 +81,7 @@ type StudentResult = {
     matiere: string;
     niveau: string;
   };
+  diagnostic?: ResultDiagnostic;
 };
 
 const niveauLabel = {
@@ -106,6 +135,19 @@ const getInitials = (user: StoredUser | null) => {
   const last = user?.nom?.trim()?.[0] || "";
 
   return `${first}${last}`.toUpperCase() || "E";
+};
+
+const formatCompetence = (competence: string) => {
+  const labels: Record<string, string> = {
+    comprehension: "Compréhension",
+    calcul: "Calcul",
+    resolution_equation: "Résolution d’équation",
+    application_regle: "Application d’une règle",
+    raisonnement: "Raisonnement mathématique",
+    autre: "Compétence générale",
+  };
+
+  return labels[competence] || competence;
 };
 
 function StudentResultsPage() {
@@ -172,6 +214,77 @@ function StudentResultsPage() {
     (result) => result.niveauDetecte === "strong"
   ).length;
 
+  const bulletinAnalysis = useMemo(() => {
+    const latestDiagnostic = sortedResults.find(
+      (result) => result.diagnostic
+    )?.diagnostic;
+
+    const allParts = sortedResults.flatMap(
+      (result) => result.diagnostic?.analyseParPartie || []
+    );
+
+    const weakestPart = [...allParts]
+      .filter((partie) => partie.titre)
+      .sort((a, b) => a.score - b.score)[0];
+
+    const allCompetences = sortedResults.flatMap(
+      (result) => result.diagnostic?.competencesFaibles || []
+    );
+
+    const weakestCompetence = [...allCompetences].sort(
+      (a, b) => b.erreurs - a.erreurs
+    )[0];
+
+    const niveauGlobal =
+      averageScore >= 75
+        ? "Le niveau global est solide. L’étudiant montre une bonne maîtrise des notions évaluées."
+        : averageScore >= 50
+        ? "Le niveau global est encourageant. Les bases sont présentes, mais certaines notions doivent encore être renforcées."
+        : "Le niveau global reste fragile. Un travail régulier sur les notions essentielles est recommandé.";
+
+    const pointFort =
+      strongResults > 0
+        ? `${strongResults} résultat(s) montrent une maîtrise solide. L’étudiant peut s’appuyer sur ces acquis pour progresser.`
+        : bestScore >= 60
+        ? `Le meilleur score obtenu est de ${bestScore} %. Cela montre que certaines compétences sont déjà en construction.`
+        : "L’étudiant est encore en phase de consolidation et doit reprendre les bases avec des exercices guidés.";
+
+    const partieFaible =
+      weakestPart?.titre ||
+      latestDiagnostic?.partieFaible ||
+      "À préciser après les prochains quiz";
+
+    const competenceFaible = weakestCompetence?.competence
+      ? formatCompetence(weakestCompetence.competence)
+      : "";
+
+    const priorite =
+      latestDiagnostic?.recommandation ||
+      (weakestPart?.titre
+        ? `Priorité : retravailler la partie « ${weakestPart.titre} » avec des exercices ciblés.`
+        : "Priorité : refaire quelques exercices d’entraînement pour consolider les acquis.");
+
+    const synthese =
+      latestDiagnostic?.ai?.synthese ||
+      latestDiagnostic?.commentaire ||
+      niveauGlobal;
+
+    const competenceLine =
+      latestDiagnostic?.ai?.competences ||
+      (competenceFaible
+        ? `Compétence à renforcer : ${competenceFaible}.`
+        : "Les prochaines évaluations permettront d’identifier plus précisément les compétences à renforcer.");
+
+    return {
+      synthese,
+      niveauGlobal,
+      pointFort,
+      priorite,
+      partieFaible,
+      competenceFaible,
+      competenceLine,
+    };
+  }, [averageScore, bestScore, sortedResults, strongResults]);
 
   const displayName =
     currentUser?.prenom && currentUser?.nom
@@ -280,7 +393,9 @@ function StudentResultsPage() {
                     className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-950 px-5 py-3 text-sm font-bold text-white shadow-xl shadow-slate-900/10 transition hover:-translate-y-0.5 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
                   >
                     <Download size={17} />
-                    {pdfLoading ? "Préparation..." : "Télécharger mon bilan PDF"}
+                    {pdfLoading
+                      ? "Préparation..."
+                      : "Télécharger mon bilan PDF"}
                   </button>
                 )}
               </div>
@@ -807,30 +922,200 @@ function StudentResultsPage() {
                   padding: "20px",
                 }}
               >
-                <p
+                <div
                   style={{
-                    margin: 0,
-                    fontSize: "14px",
-                    fontWeight: 900,
-                    color: "#020617",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "16px",
                   }}
                 >
-                  Synthèse pédagogique
-                </p>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "14px",
+                      fontWeight: 900,
+                      color: "#020617",
+                    }}
+                  >
+                    Analyse pédagogique personnalisée
+                  </p>
+
+                  <span
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: "999px",
+                      background: "#ede9fe",
+                      color: "#6d28d9",
+                      fontSize: "10px",
+                      fontWeight: 900,
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    IA
+                  </span>
+                </div>
+
                 <p
                   style={{
-                    margin: "8px 0 0",
+                    margin: "10px 0 0",
                     fontSize: "13px",
                     lineHeight: 1.7,
                     color: "#475569",
                     fontWeight: 500,
                   }}
                 >
-                  Ce bilan regroupe les derniers résultats de l’étudiant, les
-                  scores obtenus, le niveau détecté et l’évolution globale. Les
-                  résultats faibles indiquent les notions à reprendre en
-                  priorité, tandis que les résultats solides confirment les
-                  compétences déjà maîtrisées.
+                  {bulletinAnalysis.synthese}
+                </p>
+
+                <div
+                  style={{
+                    marginTop: "16px",
+                    display: "grid",
+                    gridTemplateColumns: "1fr",
+                    gap: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      borderLeft: "4px solid #7c3aed",
+                      paddingLeft: "12px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "11px",
+                        color: "#64748b",
+                        fontWeight: 900,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      Niveau global
+                    </p>
+                    <p
+                      style={{
+                        margin: "5px 0 0",
+                        fontSize: "12px",
+                        color: "#334155",
+                        fontWeight: 700,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {bulletinAnalysis.niveauGlobal}
+                    </p>
+                  </div>
+
+                  <div
+                    style={{
+                      borderLeft: "4px solid #0f172a",
+                      paddingLeft: "12px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "11px",
+                        color: "#64748b",
+                        fontWeight: 900,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      Point fort
+                    </p>
+                    <p
+                      style={{
+                        margin: "5px 0 0",
+                        fontSize: "12px",
+                        color: "#334155",
+                        fontWeight: 700,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {bulletinAnalysis.pointFort}
+                    </p>
+                  </div>
+
+                  <div
+                    style={{
+                      borderLeft: "4px solid #f59e0b",
+                      paddingLeft: "12px",
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "11px",
+                        color: "#64748b",
+                        fontWeight: 900,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                      }}
+                    >
+                      Priorité de travail
+                    </p>
+                    <p
+                      style={{
+                        margin: "5px 0 0",
+                        fontSize: "12px",
+                        color: "#334155",
+                        fontWeight: 700,
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {bulletinAnalysis.priorite}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  marginTop: "16px",
+                  borderRadius: "18px",
+                  background: "#ffffff",
+                  border: "1px solid #e5e7eb",
+                  padding: "16px",
+                }}
+              >
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "11px",
+                    color: "#64748b",
+                    fontWeight: 900,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  Partie à surveiller
+                </p>
+
+                <p
+                  style={{
+                    margin: "7px 0 0",
+                    fontSize: "13px",
+                    color: "#020617",
+                    fontWeight: 900,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {bulletinAnalysis.partieFaible}
+                </p>
+
+                <p
+                  style={{
+                    margin: "8px 0 0",
+                    fontSize: "12px",
+                    color: "#475569",
+                    fontWeight: 600,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {bulletinAnalysis.competenceLine}
                 </p>
               </div>
             </div>
