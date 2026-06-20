@@ -148,11 +148,6 @@ const niveauLabel = {
   strong: "Solide",
 };
 
-const niveauStyle = {
-  weak: "border-rose-100 bg-rose-50 text-rose-700",
-  medium: "border-amber-100 bg-amber-50 text-amber-700",
-  strong: "border-emerald-100 bg-emerald-50 text-emerald-700",
-};
 
 const getStudentInitials = (
   student?: Pick<Student, "prenom" | "nom"> | StudentToSupport
