@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -7,15 +7,33 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock3,
+  Download,
   GraduationCap,
   Medal,
   Sparkles,
   Target,
   Trophy,
 } from "lucide-react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 import api from "../api/axios";
 import StudentNav from "../components/StudentNav";
+
+type StoredUser = {
+  id?: string;
+  nom?: string;
+  name?: string;
+  prenom?: string;
+  email?: string;
+  role?: string;
+  niveauScolaire?: string;
+  classe?: string;
+  profile?: {
+    avatarUrl?: string;
+    avatarPublicId?: string;
+  };
+};
 
 type StudentResult = {
   _id: string;
@@ -69,12 +87,36 @@ const formatDate = (date: string) => {
   }).format(new Date(date));
 };
 
+const getStoredUser = (): StoredUser | null => {
+  try {
+    const rawUser = localStorage.getItem("user");
+
+    if (!rawUser) {
+      return null;
+    }
+
+    return JSON.parse(rawUser);
+  } catch {
+    return null;
+  }
+};
+
+const getInitials = (user: StoredUser | null) => {
+  const first = user?.prenom?.trim()?.[0] || "";
+  const last = user?.nom?.trim()?.[0] || "";
+
+  return `${first}${last}`.toUpperCase() || "E";
+};
+
 function StudentResultsPage() {
   const navigate = useNavigate();
+  const pdfRef = useRef<HTMLDivElement | null>(null);
 
   const [results, setResults] = useState<StudentResult[]>([]);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState("");
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [currentUser] = useState<StoredUser | null>(getStoredUser());
 
   useEffect(() => {
     const fetchResults = async () => {
@@ -130,6 +172,62 @@ function StudentResultsPage() {
     (result) => result.niveauDetecte === "strong"
   ).length;
 
+  const weakResults = results.filter(
+    (result) => result.niveauDetecte === "weak"
+  ).length;
+
+  const displayName =
+    currentUser?.prenom && currentUser?.nom
+      ? `${currentUser.prenom} ${currentUser.nom}`
+      : currentUser?.nom || currentUser?.name || "Étudiant";
+
+  const handleDownloadPdf = async () => {
+    if (!pdfRef.current || results.length === 0) {
+      return;
+    }
+
+    setPdfLoading(true);
+
+    try {
+      const canvas = await html2canvas(pdfRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
+      }
+
+      const safeName = displayName
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "");
+
+      pdf.save(`bilan-resultats-${safeName || "etudiant"}.pdf`);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen overflow-hidden bg-[#fbf8ff] text-slate-950">
       <div className="pointer-events-none fixed inset-0 -z-10">
@@ -177,6 +275,17 @@ function StudentResultsPage() {
                     className="transition group-hover:translate-x-0.5"
                   />
                 </button>
+
+                {results.length > 0 && (
+                  <button
+                    onClick={handleDownloadPdf}
+                    disabled={pdfLoading}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-slate-950 px-5 py-3 text-sm font-bold text-white shadow-xl shadow-slate-900/10 transition hover:-translate-y-0.5 hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                  >
+                    <Download size={17} />
+                    {pdfLoading ? "Préparation..." : "Télécharger mon bilan PDF"}
+                  </button>
+                )}
               </div>
             </div>
 
@@ -430,12 +539,8 @@ function StudentResultsPage() {
                     </div>
 
                     <div>
-                      <h3 className="font-bold text-slate-950">
-                        Synthèse
-                      </h3>
-                      <p className="text-sm text-slate-500">
-                        Vue globale.
-                      </p>
+                      <h3 className="font-bold text-slate-950">Synthèse</h3>
+                      <p className="text-sm text-slate-500">Vue globale.</p>
                     </div>
                   </div>
 
@@ -476,9 +581,7 @@ function StudentResultsPage() {
                     </div>
 
                     <div>
-                      <h3 className="font-bold text-slate-950">
-                        Conseil
-                      </h3>
+                      <h3 className="font-bold text-slate-950">Conseil</h3>
                       <p className="text-sm text-slate-500">
                         Prochaine étape.
                       </p>
@@ -505,6 +608,383 @@ function StudentResultsPage() {
             </aside>
           </section>
         )}
+
+        <div
+          ref={pdfRef}
+          style={{
+            position: "fixed",
+            left: "-10000px",
+            top: 0,
+            width: "794px",
+            background: "#ffffff",
+            color: "#0f172a",
+            fontFamily:
+              "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif",
+          }}
+        >
+          <div style={{ padding: "48px" }}>
+            <div
+              style={{
+                border: "1px solid #e5e7eb",
+                borderRadius: "28px",
+                padding: "28px",
+                background: "#ffffff",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: "24px",
+                  alignItems: "flex-start",
+                }}
+              >
+                <div style={{ display: "flex", gap: "18px", minWidth: 0 }}>
+                  {currentUser?.profile?.avatarUrl ? (
+                    <img
+                      src={currentUser.profile.avatarUrl}
+                      alt={displayName}
+                      crossOrigin="anonymous"
+                      style={{
+                        width: "78px",
+                        height: "78px",
+                        borderRadius: "999px",
+                        objectFit: "cover",
+                        border: "4px solid #ede9fe",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "78px",
+                        height: "78px",
+                        borderRadius: "999px",
+                        background: "#7c3aed",
+                        color: "#ffffff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "26px",
+                        fontWeight: 900,
+                        border: "4px solid #ede9fe",
+                      }}
+                    >
+                      {getInitials(currentUser)}
+                    </div>
+                  )}
+
+                  <div style={{ minWidth: 0 }}>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "12px",
+                        fontWeight: 900,
+                        letterSpacing: "0.16em",
+                        textTransform: "uppercase",
+                        color: "#7c3aed",
+                      }}
+                    >
+                      Bilan de progression
+                    </p>
+
+                    <h1
+                      style={{
+                        margin: "8px 0 0",
+                        fontSize: "30px",
+                        lineHeight: 1.05,
+                        letterSpacing: "-0.04em",
+                        color: "#020617",
+                      }}
+                    >
+                      {displayName}
+                    </h1>
+
+                    <p
+                      style={{
+                        margin: "8px 0 0",
+                        fontSize: "14px",
+                        color: "#64748b",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {currentUser?.email || "Compte étudiant"}
+                    </p>
+
+                    <p
+                      style={{
+                        display: "inline-block",
+                        margin: "12px 0 0",
+                        padding: "7px 12px",
+                        borderRadius: "999px",
+                        background: "#f8fafc",
+                        border: "1px solid #e5e7eb",
+                        fontSize: "12px",
+                        fontWeight: 800,
+                        color: "#334155",
+                      }}
+                    >
+                      {currentUser?.niveauScolaire || "Niveau"} ·{" "}
+                      {currentUser?.classe || "Classe"}
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ textAlign: "right" }}>
+                  <p
+                    style={{
+                      margin: 0,
+                      fontSize: "12px",
+                      color: "#64748b",
+                      fontWeight: 700,
+                    }}
+                  >
+                    Généré le
+                  </p>
+                  <p
+                    style={{
+                      margin: "6px 0 0",
+                      fontSize: "15px",
+                      color: "#020617",
+                      fontWeight: 900,
+                    }}
+                  >
+                    {formatDate(new Date().toISOString())}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                style={{
+                  marginTop: "28px",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(4, 1fr)",
+                  gap: "12px",
+                }}
+              >
+                {[
+                  ["Moyenne", `${averageScore}%`],
+                  ["Meilleur score", `${bestScore}%`],
+                  ["Quiz terminés", `${results.length}`],
+                  ["Réponses", `${totalGoodAnswers}/${totalQuestions}`],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    style={{
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "18px",
+                      padding: "16px",
+                      background: "#fafafa",
+                    }}
+                  >
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "11px",
+                        fontWeight: 800,
+                        color: "#64748b",
+                      }}
+                    >
+                      {label}
+                    </p>
+                    <p
+                      style={{
+                        margin: "8px 0 0",
+                        fontSize: "24px",
+                        fontWeight: 950,
+                        color: "#020617",
+                        letterSpacing: "-0.03em",
+                      }}
+                    >
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  marginTop: "24px",
+                  borderRadius: "22px",
+                  background: "#f8fafc",
+                  border: "1px solid #e5e7eb",
+                  padding: "20px",
+                }}
+              >
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "14px",
+                    fontWeight: 900,
+                    color: "#020617",
+                  }}
+                >
+                  Synthèse pédagogique
+                </p>
+                <p
+                  style={{
+                    margin: "8px 0 0",
+                    fontSize: "13px",
+                    lineHeight: 1.7,
+                    color: "#475569",
+                    fontWeight: 500,
+                  }}
+                >
+                  Ce bilan regroupe les derniers résultats de l’étudiant, les
+                  scores obtenus, le niveau détecté et l’évolution globale. Les
+                  résultats faibles indiquent les notions à reprendre en
+                  priorité, tandis que les résultats solides confirment les
+                  compétences déjà maîtrisées.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ marginTop: "28px" }}>
+              <h2
+                style={{
+                  margin: "0 0 14px",
+                  fontSize: "20px",
+                  color: "#020617",
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                Historique des résultats
+              </h2>
+
+              <div
+                style={{
+                  border: "1px solid #e5e7eb",
+                  borderRadius: "22px",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "2fr 2fr 0.8fr 1.1fr 1fr",
+                    background: "#f8fafc",
+                    borderBottom: "1px solid #e5e7eb",
+                  }}
+                >
+                  {["Cours", "Quiz", "Score", "Niveau", "Date"].map(
+                    (heading) => (
+                      <div
+                        key={heading}
+                        style={{
+                          padding: "12px 14px",
+                          fontSize: "11px",
+                          fontWeight: 900,
+                          color: "#475569",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.06em",
+                        }}
+                      >
+                        {heading}
+                      </div>
+                    )
+                  )}
+                </div>
+
+                {sortedResults.map((result) => (
+                  <div
+                    key={result._id}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "2fr 2fr 0.8fr 1.1fr 1fr",
+                      borderBottom: "1px solid #f1f5f9",
+                    }}
+                  >
+                    <div
+                      style={{
+                        padding: "13px 14px",
+                        fontSize: "12px",
+                        color: "#0f172a",
+                        fontWeight: 800,
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      {result.course?.titre || "Cours"}
+                      <div
+                        style={{
+                          marginTop: "4px",
+                          color: "#64748b",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {result.course?.matiere || "Matière"}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        padding: "13px 14px",
+                        fontSize: "12px",
+                        color: "#334155",
+                        fontWeight: 700,
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      {result.quiz?.titre || "Quiz"}
+                    </div>
+
+                    <div
+                      style={{
+                        padding: "13px 14px",
+                        fontSize: "13px",
+                        color: "#020617",
+                        fontWeight: 950,
+                      }}
+                    >
+                      {result.score}%
+                    </div>
+
+                    <div
+                      style={{
+                        padding: "13px 14px",
+                        fontSize: "12px",
+                        color:
+                          result.niveauDetecte === "strong"
+                            ? "#047857"
+                            : result.niveauDetecte === "medium"
+                            ? "#b45309"
+                            : "#be123c",
+                        fontWeight: 900,
+                      }}
+                    >
+                      {niveauLabel[result.niveauDetecte]}
+                    </div>
+
+                    <div
+                      style={{
+                        padding: "13px 14px",
+                        fontSize: "12px",
+                        color: "#64748b",
+                        fontWeight: 700,
+                      }}
+                    >
+                      {formatDate(result.createdAt)}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div
+              style={{
+                marginTop: "28px",
+                paddingTop: "18px",
+                borderTop: "1px solid #e5e7eb",
+                display: "flex",
+                justifyContent: "space-between",
+                color: "#64748b",
+                fontSize: "11px",
+                fontWeight: 700,
+              }}
+            >
+              <span>Plateforme IA d’apprentissage adaptatif</span>
+              <span>Bilan généré automatiquement</span>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
   );
