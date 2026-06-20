@@ -12,7 +12,6 @@ import {
   ListChecks,
   PlayCircle,
   Sparkles,
-  Target,
 } from "lucide-react";
 
 import api from "../api/axios";
