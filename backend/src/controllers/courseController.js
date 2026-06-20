@@ -1,5 +1,8 @@
 import Course from "../models/Course.js";
 
+const USER_PUBLIC_FIELDS = "prenom nom email role profile";
+const STUDENT_PUBLIC_FIELDS = "prenom nom email niveauScolaire classe profile";
+
 export const createCourse = async (req, res) => {
   try {
     const {
@@ -48,9 +51,13 @@ export const createCourse = async (req, res) => {
       etudiantsAutorises: [],
     });
 
+    const populatedCourse = await Course.findById(course._id)
+      .populate("creePar", USER_PUBLIC_FIELDS)
+      .populate("etudiantsAutorises", STUDENT_PUBLIC_FIELDS);
+
     res.status(201).json({
       message: "Cours créé avec succès",
-      course,
+      course: populatedCourse,
     });
   } catch (error) {
     console.error("Erreur createCourse :", error.message);
@@ -75,8 +82,8 @@ export const getCourses = async (req, res) => {
     }
 
     const courses = await Course.find(filtre)
-      .populate("creePar", "prenom nom email")
-      .populate("etudiantsAutorises", "prenom nom email niveauScolaire classe")
+      .populate("creePar", USER_PUBLIC_FIELDS)
+      .populate("etudiantsAutorises", STUDENT_PUBLIC_FIELDS)
       .sort({ createdAt: -1 });
 
     res.status(200).json(courses);
@@ -122,9 +129,13 @@ export const giveAccessToCourse = async (req, res) => {
 
     await course.save();
 
+    const populatedCourse = await Course.findById(course._id)
+      .populate("creePar", USER_PUBLIC_FIELDS)
+      .populate("etudiantsAutorises", STUDENT_PUBLIC_FIELDS);
+
     res.status(200).json({
       message: "Accès au cours accordé avec succès",
-      course,
+      course: populatedCourse,
     });
   } catch (error) {
     console.error("Erreur giveAccessToCourse :", error.message);

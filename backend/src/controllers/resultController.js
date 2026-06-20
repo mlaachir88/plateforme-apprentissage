@@ -3,6 +3,8 @@ import Course from "../models/Course.js";
 import Quiz from "../models/Quiz.js";
 import { generateTeacherAnalysis } from "../services/aiTeacherAnalysisService.js";
 
+const STUDENT_PUBLIC_FIELDS = "prenom nom email niveauScolaire classe profile";
+
 export const getMyResults = async (req, res) => {
   try {
     const results = await Result.find({ student: req.user._id })
@@ -30,7 +32,7 @@ export const getTeacherResults = async (req, res) => {
     const results = await Result.find({
       course: { $in: courseIds },
     })
-      .populate("student", "prenom nom email niveauScolaire classe")
+      .populate("student", STUDENT_PUBLIC_FIELDS)
       .populate("quiz", "titre difficulte type")
       .populate("course", "titre matiere niveau")
       .sort({ createdAt: -1 });
@@ -148,7 +150,7 @@ export const getTeacherCourseAnalysis = async (req, res) => {
     const results = await Result.find({
       course: courseId,
     })
-      .populate("student", "prenom nom email niveauScolaire classe")
+      .populate("student", STUDENT_PUBLIC_FIELDS)
       .populate("quiz", "titre type")
       .sort({ createdAt: -1 });
 
@@ -272,6 +274,10 @@ export const getTeacherCourseAnalysis = async (req, res) => {
         email: result.student?.email || "",
         niveauScolaire: result.student?.niveauScolaire || "",
         classe: result.student?.classe || "",
+        profile: result.student?.profile || {
+          avatarUrl: "",
+          avatarPublicId: "",
+        },
         score: result.score,
         niveauDetecte: result.niveauDetecte,
         partieFaible: result.diagnostic?.partieFaible || "",

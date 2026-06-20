@@ -1,5 +1,8 @@
 import User from "../models/User.js";
 
+const STUDENT_PUBLIC_FIELDS =
+  "prenom nom email niveauScolaire classe role profile";
+
 export const getStudents = async (req, res) => {
   try {
     const { niveauScolaire, classe } = req.query;
@@ -17,13 +20,14 @@ export const getStudents = async (req, res) => {
     }
 
     const students = await User.find(filtre)
-      .select("-motDePasse")
+      .select(STUDENT_PUBLIC_FIELDS)
       .sort({ niveauScolaire: 1, classe: 1, nom: 1 });
 
     res.status(200).json(students);
   } catch (error) {
     res.status(500).json({
       message: "Erreur lors de la récupération des étudiants",
+      error: error.message,
     });
   }
 };

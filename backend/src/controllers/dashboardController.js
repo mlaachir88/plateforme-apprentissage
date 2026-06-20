@@ -2,6 +2,8 @@ import Course from "../models/Course.js";
 import Quiz from "../models/Quiz.js";
 import Result from "../models/Result.js";
 
+const STUDENT_PUBLIC_FIELDS = "prenom nom email niveauScolaire classe profile";
+
 export const getTeacherDashboard = async (req, res) => {
   try {
     const teacherId = req.user._id;
@@ -21,7 +23,7 @@ export const getTeacherDashboard = async (req, res) => {
     const results = await Result.find({
       course: { $in: courseIds },
     })
-      .populate("student", "prenom nom email niveauScolaire classe")
+      .populate("student", STUDENT_PUBLIC_FIELDS)
       .populate("quiz", "titre difficulte")
       .populate("course", "titre matiere niveau")
       .sort({ updatedAt: -1 });

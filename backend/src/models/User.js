@@ -49,6 +49,18 @@ const userSchema = new mongoose.Schema(
         return this.role === "student";
       },
     },
+
+    profile: {
+      avatarUrl: {
+        type: String,
+        default: "",
+      },
+
+      avatarPublicId: {
+        type: String,
+        default: "",
+      },
+    },
   },
   {
     timestamps: true,
