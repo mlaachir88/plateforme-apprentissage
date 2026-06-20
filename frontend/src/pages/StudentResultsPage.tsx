@@ -172,9 +172,6 @@ function StudentResultsPage() {
     (result) => result.niveauDetecte === "strong"
   ).length;
 
-  const weakResults = results.filter(
-    (result) => result.niveauDetecte === "weak"
-  ).length;
 
   const displayName =
     currentUser?.prenom && currentUser?.nom
