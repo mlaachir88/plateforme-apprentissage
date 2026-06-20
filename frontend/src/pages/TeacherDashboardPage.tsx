@@ -7,7 +7,6 @@ import {
   BrainCircuit,
   ClipboardList,
   Clock3,
-  GraduationCap,
   Layers,
   PlusCircle,
   ShieldCheck,
